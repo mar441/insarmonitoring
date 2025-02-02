@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 import dash
 from dash import dcc
@@ -13,10 +7,6 @@ import plotly.express as px
 from scipy.stats import t
 import numpy as np
 from geopy.distance import geodesic
-
-
-# In[2]:
-
 
 def load_displacement_data(file_path, file_label):
     df = pd.read_csv(file_path)
@@ -29,116 +19,92 @@ def load_displacement_data(file_path, file_label):
     df['pid'] = df['pid'].astype(str)
     return df
 
-
-# In[3]:
-
-
 def load_anomaly_data(file_path, file_label):
     df = pd.read_csv(file_path)
     df['file'] = file_label
     df['pid'] = df['pid'].astype(str)
     return df
 
-
-# In[4]:
-
-
-geo_data_lstm = pd.read_csv('D:\\WROCLAW\\2\\wroclaw_geo.csv', delimiter=',')
+geo_data_lstm = pd.read_csv('wroclaw_geo.csv', delimiter=',')
 geo_data_lstm['pid'] = geo_data_lstm['pid'].astype(str).str.strip()
 
-geo_data_conv = pd.read_csv('D:\\WROCLAW\\2\\wroclaw_geo.csv', delimiter=',')
+geo_data_conv = pd.read_csv('wroclaw_geo.csv', delimiter=',')
 geo_data_conv['pid'] = geo_data_conv['pid'].astype(str).str.strip()
 
-geo_data_dense = pd.read_csv('D:\\WROCLAW\\2\\wroclaw_geo.csv', delimiter=',')
+geo_data_dense = pd.read_csv('wroclaw_geo.csv', delimiter=',')
 geo_data_dense['pid'] = geo_data_dense['pid'].astype(str).str.strip()
 
-geo_data_ml = pd.read_csv('D:\\WROCLAW\\2\\wroclaw_geo.csv', delimiter=',')
+geo_data_ml = pd.read_csv('wroclaw_geo.csv', delimiter=',')
 geo_data_ml['pid'] = geo_data_ml['pid'].astype(str).str.strip()
 
 
-# In[5]:
-
-
-displacement_data_1 = load_displacement_data('D:\\sar_time_series-web_service\\data\\wro.csv', 'Ascending 175')
+displacement_data_1 = load_displacement_data('wro.csv', 'Ascending 175')
 displacement_data_1['pid'] = displacement_data_1['pid'].astype(str).str.strip() 
 all_data_lstm = pd.merge(displacement_data_1, geo_data_lstm, on='pid', how='left')
 
-displacement_data_2 = load_displacement_data('D:\\sar_time_series-web_service\\data\\wro.csv', 'Ascending 175')
+displacement_data_2 = load_displacement_data('wro.csv', 'Ascending 175')
 displacement_data_2['pid'] = displacement_data_2['pid'].astype(str).str.strip() 
 all_data_conv = pd.merge(displacement_data_2, geo_data_conv, on='pid', how='left')
 
-displacement_data_3 = load_displacement_data('D:\\sar_time_series-web_service\\data\\wro.csv', 'Ascending 175')
+displacement_data_3 = load_displacement_data('wro.csv', 'Ascending 175')
 displacement_data_3['pid'] = displacement_data_3['pid'].astype(str).str.strip() 
 all_data_dense = pd.merge(displacement_data_3, geo_data_dense, on='pid', how='left')
 
-displacement_data_3 = load_displacement_data('D:\\sar_time_series-web_service\\data\\wro.csv', 'Ascending 175')
+displacement_data_3 = load_displacement_data('wro.csv', 'Ascending 175')
 displacement_data_3['pid'] = displacement_data_3['pid'].astype(str).str.strip() 
 all_data_ml = pd.merge(displacement_data_3, geo_data_ml, on='pid', how='left')
 
-
-# In[6]:
-
-
-prediction_data_1 = pd.read_csv('D:\\sar_time_series-web_service\\outputs\\LSTM\\predictions.csv')
+prediction_data_1 = pd.read_csv('predictions_lstm.csv')
 prediction_data_1['Date'] = pd.to_datetime(prediction_data_1['Date'])
 prediction_data_1 = prediction_data_1.melt(id_vars='Date', var_name='pid', value_name='predicted_displacement')
 prediction_data_1 = prediction_data_1.sort_values(by=['pid', 'Date'])
 prediction_data_1['step'] = prediction_data_1.groupby('pid').cumcount() + 1
 prediction_data_1['label'] = 'Prediction Set LSTM'
 
-prediction_data_2 = pd.read_csv('D:\\sar_time_series-web_service\\outputs\\CONV_AUTOENCODER\\predictions.csv') 
+prediction_data_2 = pd.read_csv('predictions_conv.csv') 
 prediction_data_2['Date'] = pd.to_datetime(prediction_data_2['Date'])
 prediction_data_2 = prediction_data_2.melt(id_vars='Date', var_name='pid', value_name='predicted_displacement')
 prediction_data_2 = prediction_data_2.sort_values(by=['pid', 'Date'])
 prediction_data_2['step'] = prediction_data_1.groupby('pid').cumcount() + 1
 prediction_data_2['label'] = 'Prediction Set Conv Autoencoder'
 
-prediction_data_3 = pd.read_csv('D:\\sar_time_series-web_service\\outputs\\DENSE_AUTOENCODER\\predictions.csv') 
+prediction_data_3 = pd.read_csv('predictions_dense.csv') 
 prediction_data_3['Date'] = pd.to_datetime(prediction_data_3['Date'])
 prediction_data_3 = prediction_data_3.melt(id_vars='Date', var_name='pid', value_name='predicted_displacement')
 prediction_data_3 = prediction_data_3.sort_values(by=['pid', 'Date'])
 prediction_data_3['step'] = prediction_data_3.groupby('pid').cumcount() + 1
 prediction_data_3['label'] = 'Prediction Set Dense Autoencoder'
 
-prediction_data_4 = pd.read_csv('D:\\sar_time_series-web_service\\outputs\\ML\\predictions.csv') 
+prediction_data_4 = pd.read_csv('predictions_ml.csv') 
 prediction_data_4['Date'] = pd.to_datetime(prediction_data_4['Date'])
 prediction_data_4 = prediction_data_4.melt(id_vars='Date', var_name='pid', value_name='predicted_displacement')
 prediction_data_4 = prediction_data_4.sort_values(by=['pid', 'Date'])
 prediction_data_4['step'] = prediction_data_4.groupby('pid').cumcount() + 1
 prediction_data_4['label'] = 'Prediction Set ML'
 
-
-# In[7]:
-
-
-anomaly_data_lstm_95  = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\LSTM\\anomaly_lstm_95.csv', 'Anomaly Set 1 (95%)')
+anomaly_data_lstm_95  = load_anomaly_data('anomaly_lstm_95.csv', 'Anomaly Set 1 (95%)')
 anomaly_data_lstm_95 = anomaly_data_lstm_95.groupby('pid').head(61)
 
-anomaly_data_lstm_99 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\LSTM\\anomaly_lstm_99.csv', 'Anomaly Set 1 (99%)')
+anomaly_data_lstm_99 = load_anomaly_data('anomaly_lstm_99.csv', 'Anomaly Set 1 (99%)')
 anomaly_data_lstm_99 = anomaly_data_lstm_99.groupby('pid').head(61)
 
-anomaly_data_conv_95 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\CONV_AUTOENCODER\\anomaly_conv_95.csv', 'Anomaly Set 2 (95%)')
+anomaly_data_conv_95 = load_anomaly_data('anomaly_conv_95.csv', 'Anomaly Set 2 (95%)')
 anomaly_data_conv_95 = anomaly_data_conv_95.groupby('pid').head(61)
 
-anomaly_data_conv_99 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\CONV_AUTOENCODER\\anomaly_conv_99.csv', 'Anomaly Set 2 (99%)')
+anomaly_data_conv_99 = load_anomaly_data('anomaly_conv_99.csv', 'Anomaly Set 2 (99%)')
 anomaly_data_conv_99 = anomaly_data_conv_99.groupby('pid').head(61)
 
-
-anomaly_data_dense_95 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\DENSE_AUTOENCODER\\anomaly_dense_95.csv', 'Anomaly Set 3 (95%)')
+anomaly_data_dense_95 = load_anomaly_data('anomaly_dense_95.csv', 'Anomaly Set 3 (95%)')
 anomaly_data_dense_95 = anomaly_data_dense_95.groupby('pid').head(61)
 
-anomaly_data_dense_99 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\DENSE_AUTOENCODER\\anomaly_dense_99.csv', 'Anomaly Set 3 (99%)')
+anomaly_data_dense_99 = load_anomaly_data('anomaly_dense_99.csv', 'Anomaly Set 3 (99%)')
 anomaly_data_dense_99 = anomaly_data_dense_99.groupby('pid').head(61)
 
-
-anomaly_data_ml_95 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\ML\\anomaly_ml_95.csv', 'Anomaly Set 4 (95%)')
+anomaly_data_ml_95 = load_anomaly_data('anomaly_ml_95.csv', 'Anomaly Set 4 (95%)')
 anomaly_data_ml_95 = anomaly_data_ml_95.groupby('pid').head(61)
 
-anomaly_data_ml_99 = load_anomaly_data('D:\\sar_time_series-web_service\\outputs\\ML\\anomaly_ml_99.csv', 'Anomaly Set 4 (99%)')
+anomaly_data_ml_99 = load_anomaly_data('anomaly_ml_99.csv', 'Anomaly Set 4 (99%)')
 anomaly_data_ml_99 = anomaly_data_ml_99.groupby('pid').head(61)
-
-
-# In[8]:
 
 
 all_data_lstm.sort_values(by=['pid', 'timestamp'], inplace=True)
@@ -177,10 +143,6 @@ mean_velocity_data_ml = all_data_ml.groupby('pid')['displacement_speed'].mean().
 mean_velocity_data_ml.rename(columns={'displacement_speed': 'mean_velocity'}, inplace=True)
 all_data_ml = pd.merge(all_data_ml, mean_velocity_data_ml, on='pid', how='left')
 
-
-# In[9]:
-
-
 def compute_prefix_sums(data):
     data = data.sort_values(by=['pid', 'step'])
     pivot = data.pivot(index='pid', columns='step', values='predicted_displacement').fillna(0).round(1)
@@ -206,9 +168,6 @@ MAX_LSTM = lstm_prefix.columns.max()
 MAX_CONV = conv_prefix.columns.max()
 MAX_DENSE = dense_prefix.columns.max()
 MAX_ML = ml_prefix.columns.max()
-
-
-# In[15]:
 
 
 def add_obs_step(df):
@@ -246,10 +205,6 @@ MAX_ACTUAL_CONV = actual_conv_prefix.columns.max()
 MAX_ACTUAL_DENSE = actual_dense_prefix.columns.max()
 MAX_ACTUAL_ML = actual_ml_prefix.columns.max()
 
-
-# In[16]:
-
-
 orbit_geometry_info = {
     'Ascending 175': {
         'Relative orbit number': '175',
@@ -258,13 +213,7 @@ orbit_geometry_info = {
     }}
 
 
-# In[17]:
-
-
 px.set_mapbox_access_token('pk.eyJ1IjoibWFycGllayIsImEiOiJjbTBxbXBsMGQwYjgyMmxzN3RpdmlhZDVrIn0.YWJh1RM6HKfN_pbH-jtJ6A')
-
-
-# In[18]:
 
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -942,15 +891,6 @@ def display_displacement(clickData, start_date, end_date, y_min, y_max, selected
     return fig, {'display': 'block'}
 
 
-# In[19]:
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
-
-
-# In[ ]:
-
-
-
-
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
